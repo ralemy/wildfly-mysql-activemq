@@ -1,0 +1,38 @@
+version: "2"
+services:
+  wildfly:
+    build: ./wildfly
+    container_name: "argus"
+    env_file:
+      - ./argus.env
+    depends_on:
+      - mysql
+      - activemq
+    ports:
+      - "8989:8080"
+      - "9999:9990"
+      - "8843:8443"
+      - "4488:4488"
+
+  activemq:
+    image: rmohr/activemq:5.10.0
+    container_name: "activemq"
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+
+  mysql:
+    image: "mysql:5.7"
+    container_name: "db"
+    env_file:
+      - ./argus.env
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql/config:/etc/mysql/conf.d
+      - ./mysql/db:/var/lib/mysql
+      - ./mysql/argus.sql:/docker-entrypoint-initdb.d/argus.sql
+
+networks:
+  default:
+    driver: bridge

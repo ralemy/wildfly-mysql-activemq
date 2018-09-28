@@ -1,0 +1,39 @@
+# batch command to add activemq to WildFly
+
+batch
+
+
+# Add container configuration for mdb
+/subsystem=ejb3:write-attribute(name="default-mdb-instance-pool", value="mdb-strict-max-pool")
+/subsystem=ejb3:write-attribute(name="default-resource-adapter-name", value="activemq-rar")
+
+# Add the activemq.rar resource adapter
+/subsystem=resource-adapters/resource-adapter=activemq-rar.rar:add(module=org.apache.activemq, transaction-support=XATransaction)
+/subsystem=resource-adapters/resource-adapter=activemq-rar.rar/config-properties=ServerUrl/:add(value=tcp://activemq:61616)
+/subsystem=resource-adapters/resource-adapter=activemq-rar.rar/config-properties=Password/:add(value=${env.AMQ_PASSWORD})
+/subsystem=resource-adapters/resource-adapter=activemq-rar.rar/config-properties=UserName/:add(value=${env.AMQ_USER})
+/subsystem=resource-adapters/resource-adapter=activemq-rar.rar/connection-definitions=ConnectionFactory:add(class-name=org.apache.activemq.ra.ActiveMQManagedConnectionFactory, jndi-name=java:/ActiveMQConnectionFactory, enabled=true, use-java-context=true)
+/subsystem=resource-adapters/resource-adapter=activemq-rar.rar/admin-objects=${env.AMQ_QUEUE}:add(class-name=org.apache.activemq.command.ActiveMQQueue, jndi-name=java:/queue/${env.AMQ_QUEUE}, use-java-context=true)
+/subsystem=resource-adapters/resource-adapter=activemq-rar.rar/admin-objects=${env.AMQ_QUEUE}/config-properties=PhysicalName/:add(value=${env.AMQ_QUEUE})
+/subsystem=resource-adapters/resource-adapter=activemq-rar.rar/admin-objects=${env.AMQ_TOPIC}:add(class-name=org.apache.activemq.command.ActiveMQTopic, jndi-name=java:/topic/${env.AMQ_QUEUE}, use-java-context=true)
+/subsystem=resource-adapters/resource-adapter=activemq-rar.rar/admin-objects=${env.AMQ_TOPIC}/config-properties=PhysicalName/:add(value=${env.AMQ_QUEUE})
+/subsystem=resource-adapters/resource-adapter=activemq-rar.rar:activate
+
+# show the result
+/subsystem=resource-adapters/resource-adapter=activemq-rar.rar:read-resource(recursive=true)
+
+
+# logging
+
+# /subsystem=logging/console-handler=CONSOLE:write-attribute(name=level,value=DEBUG)
+# /subsystem=undertow/configuration=filter/custom-filter=request-logging-filter:add(class-name=io.undertow.server.handlers.RequestDumpingHandler, module=io.undertow.core)
+# /subsystem=undertow/server=default-server/host=default-host/filter-ref=request-logging-filter:add
+
+# https
+/core-service=management/security-realm=ApplicationRealm/server-identity=ssl:remove
+/core-service=management/security-realm=ApplicationRealm/server-identity=ssl:add(keystore-path=wfly.jks,keystore-relative-to=jboss.server.config.dir,keystore-password=arguswfly, alias=argus, key-password=arguswfly)
+
+jms-topic add --topic-address=jms.eventTopic --entries=java:/jms/topic/eventTopic
+
+# Execute the batch
+run-batch

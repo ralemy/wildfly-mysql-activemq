@@ -1,0 +1,12 @@
+# batch commands to add mysql to WildFly and create module for ActiveMQ
+
+batch
+
+module add --name=com.mysql --resources=/opt/mysql-connector-java-${env.MYSQL_VERSION}.jar --dependencies=javax.api,javax.transaction.api
+
+/subsystem=datasources/jdbc-driver=mysql:add(driver-name=mysql,driver-module-name=com.mysql,driver-class-name=com.mysql.cj.jdbc.Driver)
+data-source add --name=${env.DB_DS}DS --jndi-name=java:/jdbc/${env.DB_DS}DS --user-name=${env.DB_USER} --password=${env.DB_PASSWORD} --driver-name=mysql --connection-url=jdbc:mysql://${env.DB_URI}/${env.DB_NAME} --use-ccm=false --max-pool-size=25 --blocking-timeout-wait-millis=5000 --enabled=true
+
+module add --name=org.apache.activemq --module-xml=/opt/activemq-module.xml
+
+run-batch
