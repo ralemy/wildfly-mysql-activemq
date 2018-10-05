@@ -11,4 +11,4 @@ done
 
 echo -e "\nmysql ready"
 export DISPLAY=:0.0
-/opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0 -c standalone-full.xml
+${WILDFLY}/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0 -c standalone-full.xml
