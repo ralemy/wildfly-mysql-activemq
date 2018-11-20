@@ -8,7 +8,7 @@ ENV DB_DS   argus
 ENV DB_NAME guard
 ENV DB_USER sa
 ENV DB_PASSWORD sa
-ENV DB_URI db:3306
+ENV DB_URI argus-mysql:3306
 ENV MYSQL_VERSION 8.0.12
 
 # Jboss Wildfly
