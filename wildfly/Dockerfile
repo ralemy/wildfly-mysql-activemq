@@ -27,6 +27,7 @@ ENV AMQ_USER admin
 ENV AMQ_PASSWORD adminactivemq
 ENV AMQ_QUEUE  DEFAULTQueue
 ENV AMQ_TOPIC  DEFAULTTopic
+ENV AMQ_URL tcp://argus-activemq:61616
 
 USER root
 
@@ -66,6 +67,6 @@ RUN chown -R jboss:jboss $WILDFLY/*
 USER jboss
 
 
-EXPOSE 8080 9990 8443
+EXPOSE 8080 9990 8443 4488
 
 CMD ["/opt/wait-for-mysql.sh"]
